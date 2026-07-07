@@ -26,6 +26,8 @@ export default function AdminLogin() {
     setError('');
     
     try {
+      console.log('Logging in with:', { username });
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,15 +35,13 @@ export default function AdminLogin() {
       });
       
       const data = await response.json();
-      console.log('Login response:', data);
+      console.log('Login response:', { status: response.status, data });
       
       if (response.ok && data.token) {
         // Store token in localStorage
         localStorage.setItem('admin_token', data.token);
         localStorage.setItem('admin_user', JSON.stringify(data.user));
-        console.log('Token stored in localStorage');
-        
-        // Force redirect
+        console.log('Token stored, redirecting...');
         window.location.href = '/admin/dashboard';
       } else {
         setError(data.error || 'Login failed');
