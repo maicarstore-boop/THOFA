@@ -427,7 +427,7 @@ export default function DonatePage() {
                   </h4>
                   <ul className="text-sm text-blue-700 space-y-1">
                     <li>• Please use the project name "{project.title}" as reference</li>
-                    <li>• After transfer, please email us at {process.env.NEXT_PUBLIC_ORG_EMAIL || 'info@thofa.org'} with the transaction details</li>
+                    <li>• After transfer, please email us at {process.env.NEXT_PUBLIC_ORG_EMAIL || 'tumurihafingo@gmail.com'} with the transaction details</li>
                     <li>• Your donation will be processed within 24-48 hours</li>
                   </ul>
                 </div>

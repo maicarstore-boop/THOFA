@@ -35,8 +35,8 @@ const Footer = () => {
           <div>
             <h3 className="mb-4 text-lg font-semibold">Contact</h3>
             <ul className="space-y-3 text-sm text-gray-300">
-              <li className="flex items-start gap-2"><i className="fas fa-phone mt-1"></i><span>{process.env.NEXT_PUBLIC_ORG_PHONE1 || '+250788499920'}</span></li>
-              <li className="flex items-start gap-2"><i className="fas fa-envelope mt-1"></i><span>{process.env.NEXT_PUBLIC_ORG_EMAIL || 'info@thofa.org'}</span></li>
+              <li className="flex items-start gap-2"><i className="fas fa-phone mt-1"></i><span>{process.env.NEXT_PUBLIC_ORG_PHONE1 || '+250784109571'}</span></li>
+              <li className="flex items-start gap-2"><i className="fas fa-envelope mt-1"></i><span>{process.env.NEXT_PUBLIC_ORG_EMAIL || 'tumurihafingo@gmail.com'}</span></li>
               <li className="flex items-start gap-2"><i className="fas fa-map-marker-alt mt-1"></i><span>{process.env.NEXT_PUBLIC_ORG_ADDRESS || 'Kigali, Rwanda'}</span></li>
             </ul>
           </div>
