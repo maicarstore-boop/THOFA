@@ -229,34 +229,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin Header */}
-      <header className="bg-gradient-to-r from-[#1a3a1a] to-[#2c5f2d] text-white shadow-lg sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#ff6b35] p-2 rounded-lg">
-              <i className="fas fa-hands-helping text-xl"></i>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">THOFA Admin</h1>
-              <p className="text-xs text-gray-300">Manage your charity organization</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg">
-              <i className="fas fa-user-circle text-lg"></i>
-              <span className="text-sm font-medium">{user?.username || 'Admin'}</span>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2"
-            >
-              <i className="fas fa-sign-out-alt"></i>
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-[#2c5f2d] to-[#1a3a1a] rounded-xl shadow-lg p-6 mb-8 text-white">

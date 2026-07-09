@@ -1,7 +1,6 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
+import AppShell from '../components/layout/AppShell';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,11 +22,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="bg-gray-50">
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
