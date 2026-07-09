@@ -8,6 +8,13 @@ export async function POST(request) {
     const { username, password } = await request.json();
     console.log('Login attempt:', { username });
 
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Authentication service is not configured' },
+        { status: 500 }
+      );
+    }
+
     // Find user in Supabase
     const { data: user, error } = await supabase
       .from('admin_users')
