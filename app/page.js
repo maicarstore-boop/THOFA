@@ -13,6 +13,10 @@ export default function HomePage() {
   useEffect(() => {
     fetchData();
     checkUser();
+
+    // Listen for storage changes (for profile updates)
+    window.addEventListener('storage', checkUser);
+    return () => window.removeEventListener('storage', checkUser);
   }, []);
 
   const fetchData = async () => {
@@ -43,6 +47,8 @@ export default function HomePage() {
       } catch (error) {
         setUser(null);
       }
+    } else {
+      setUser(null);
     }
   };
 
@@ -52,33 +58,55 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Fully Responsive */}
+      {/* Hero Section */}
       <section className="relative text-white py-12 sm:py-16 md:py-20 lg:py-32 text-center px-4 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/images.jpg)' }}>
         <div className="absolute inset-0 bg-black bg-opacity-60"></div>
         <div className="relative z-10 container mx-auto max-w-4xl">
-          {/* Logo Icon - Responsive */}
+          {/* User Greeting with Profile Picture */}
+          {user && (
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/30 overflow-hidden mb-2">
+                {user.profile_image ? (
+                  <img 
+                    src={user.profile_image} 
+                    alt={user.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#ff6b35] flex items-center justify-center text-2xl font-bold">
+                    {user.name?.charAt(0) || 'U'}
+                  </div>
+                )}
+              </div>
+              <p className="text-sm sm:text-base opacity-90">
+                Welcome back, <span className="font-semibold">{user.name || 'Member'}</span>! 👋
+              </p>
+            </div>
+          )}
+
+          {/* Logo Icon */}
           <div className="flex justify-center mb-4 sm:mb-6">
             <div className="bg-[#ff6b35] p-3 sm:p-4 rounded-full">
               <i className="fas fa-hands-helping text-2xl sm:text-3xl md:text-4xl"></i>
             </div>
           </div>
           
-          {/* Title - Responsive */}
+          {/* Title */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 sm:mb-4 leading-tight px-2">
             {process.env.NEXT_PUBLIC_ORG_NAME || 'THOFA'}
           </h1>
           
-          {/* Tagline - Responsive */}
+          {/* Tagline */}
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto opacity-90 mb-4 sm:mb-6 px-2">
             {process.env.NEXT_PUBLIC_ORG_TAGLINE || 'Bringing Hope Closer to Africa'}
           </p>
           
-          {/* Description - Responsive */}
+          {/* Description */}
           <p className="text-sm sm:text-base md:text-lg max-w-2xl mx-auto opacity-80 mb-6 sm:mb-8 px-2">
             Together we can make a difference in the lives of those who need it most.
           </p>
           
-          {/* Buttons - Responsive */}
+          {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2">
             <Link href="/projects" className="bg-[#ff6b35] hover:bg-[#e55a2b] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base md:text-lg transition-all transform hover:scale-105 text-center">
               <i className="fas fa-heart mr-2"></i> Donate Now
@@ -96,10 +124,19 @@ export default function HomePage() {
               </Link>
             )}
           </div>
+
+          {/* User Profile Link */}
+          {user && (
+            <div className="mt-4">
+              <Link href="/profile" className="text-sm text-white/70 hover:text-white transition-colors">
+                <i className="fas fa-user-edit mr-1"></i> Edit Profile
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Stats Section - Fully Responsive */}
+      {/* Stats Section */}
       <section className="py-8 sm:py-12 md:py-16 bg-white px-3 sm:px-4">
         <div className="container mx-auto">
           <div className="text-center mb-6 sm:mb-8 md:mb-12">
@@ -155,7 +192,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Projects Section - Fully Responsive */}
+      {/* Featured Projects Section */}
       <section className="py-8 sm:py-12 md:py-16 bg-gray-50 px-3 sm:px-4">
         <div className="container mx-auto">
           <div className="text-center mb-6 sm:mb-8 md:mb-10">
@@ -223,15 +260,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Call to Action Section - Fully Responsive */}
+      {/* Call to Action Section */}
       <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-r from-[#2c5f2d] to-[#1a3a1a] text-white px-3 sm:px-4">
         <div className="container mx-auto px-2 text-center">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4">
-            {user ? 'Welcome Back!' : 'Ready to Make a Difference?'}
+            {user ? `Welcome Back, ${user.name || 'Member'}!` : 'Ready to Make a Difference?'}
           </h2>
           <p className="text-sm sm:text-base md:text-lg opacity-90 max-w-2xl mx-auto mb-4 sm:mb-6 px-2">
             {user 
-              ? `Thank you for being part of our community, ${user.name || 'Member'}! Your support helps us bring hope to those who need it most.`
+              ? `Thank you for being part of our community! Your support helps us bring hope to those who need it most.`
               : 'Join us in our mission to bring hope closer to Africa. Every contribution, big or small, makes a difference.'
             }
           </p>
@@ -241,8 +278,8 @@ export default function HomePage() {
                 <Link href="/donate" className="bg-[#ff6b35] hover:bg-[#e55a2b] text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-colors">
                   <i className="fas fa-heart mr-2"></i> Make a Donation
                 </Link>
-                <Link href="/dashboard" className="bg-white hover:bg-gray-100 text-[#2c5f2d] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-colors">
-                  <i className="fas fa-user mr-2"></i> Go to Dashboard
+                <Link href="/profile" className="bg-white hover:bg-gray-100 text-[#2c5f2d] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-colors">
+                  <i className="fas fa-user mr-2"></i> My Profile
                 </Link>
               </>
             ) : (

@@ -16,7 +16,6 @@ export default function ThankYouPage() {
     if (donationId) {
       fetchDonation();
     } else {
-      // If no donation ID, redirect to home after 3 seconds
       setTimeout(() => router.push('/'), 3000);
     }
   }, [donationId, router]);
@@ -51,6 +50,24 @@ export default function ThankYouPage() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: 'bg-yellow-100 text-yellow-700',
+      completed: 'bg-green-100 text-green-700',
+      failed: 'bg-red-100 text-red-700'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-700';
+  };
+
+  const getStatusIcon = (status) => {
+    const icons = {
+      pending: 'fa-clock',
+      completed: 'fa-check-circle',
+      failed: 'fa-times-circle'
+    };
+    return icons[status] || 'fa-circle';
   };
 
   if (loading) {
@@ -100,8 +117,13 @@ export default function ThankYouPage() {
           <div className="p-6 md:p-8">
             <div className="text-center mb-6">
               <p className="text-gray-600">
-                Your donation has been successfully processed. 
-                You will receive a confirmation email shortly.
+                Your donation has been successfully submitted.
+                {donation.status === 'pending' && (
+                  <span className="block mt-2 text-yellow-600">
+                    <i className="fas fa-clock mr-1"></i> 
+                    Your donation is pending verification. You will receive a confirmation once the payment is confirmed.
+                  </span>
+                )}
               </p>
             </div>
 
@@ -128,12 +150,30 @@ export default function ThankYouPage() {
                   <span className="text-gray-500">Type</span>
                   <span className="font-medium text-gray-700 capitalize">{donation.donation_type}</span>
                 </div>
+                <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                  <span className="text-gray-500">Status</span>
+                  <span className={`inline-flex items-center gap-1 text-sm font-medium px-3 py-1 rounded-full ${getStatusColor(donation.status)}`}>
+                    <i className={`fas ${getStatusIcon(donation.status)}`}></i>
+                    {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
+                  </span>
+                </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500">Date</span>
                   <span className="font-medium text-gray-700">{formatDate(donation.created_at)}</span>
                 </div>
               </div>
             </div>
+
+            {/* Pending Message */}
+            {donation.status === 'pending' && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                <p className="text-sm text-yellow-700">
+                  <i className="fas fa-info-circle mr-2"></i>
+                  Your donation is pending verification. We will confirm once the payment is received. 
+                  You will receive a confirmation email shortly.
+                </p>
+              </div>
+            )}
 
             {/* Message from Donor */}
             {donation.message && (

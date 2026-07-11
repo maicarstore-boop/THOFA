@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// POST - Submit volunteer application
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -15,7 +16,6 @@ export async function POST(request) {
     if (!phone) errors.push('Phone number is required');
     if (!message) errors.push('Message is required');
 
-    // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && !emailRegex.test(email)) {
       errors.push('Invalid email format');
@@ -29,7 +29,6 @@ export async function POST(request) {
       );
     }
 
-    // Insert volunteer into Supabase
     const volunteerData = {
       full_name: full_name.trim(),
       email: email.trim(),
@@ -144,6 +143,47 @@ export async function PUT(request) {
     });
   } catch (error) {
     console.error('Volunteer update error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - Delete a volunteer
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Volunteer ID is required' },
+        { status: 400 }
+      );
+    }
+
+    console.log('Deleting volunteer with ID:', id);
+
+    const { error } = await supabase
+      .from('volunteers')
+      .delete()
+      .eq('id', parseInt(id));
+
+    if (error) {
+      console.error('Supabase delete error:', error);
+      return NextResponse.json(
+        { error: 'Database error: ' + error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Volunteer deleted successfully'
+    });
+  } catch (error) {
+    console.error('Volunteer delete error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

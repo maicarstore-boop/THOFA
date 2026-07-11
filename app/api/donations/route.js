@@ -9,38 +9,44 @@ export async function POST(request) {
     const { project_id, donor_name, donor_email, donor_phone, amount, donation_type, message } = body;
 
     // Validate required fields
-    const errors = [];
-    if (!donor_name) errors.push('Name is required');
-    if (!donor_email) errors.push('Email is required');
-    if (!amount || amount <= 0) errors.push('Valid donation amount is required');
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (donor_email && !emailRegex.test(donor_email)) {
-      errors.push('Invalid email format');
-    }
-
-    if (errors.length > 0) {
-      console.log('Validation errors:', errors);
+    if (!donor_name || !donor_email || !amount || amount <= 0) {
       return NextResponse.json(
-        { error: errors.join(', ') },
+        { error: 'Missing required fields: name, email, and valid amount are required' },
         { status: 400 }
       );
     }
 
-    // Insert donation into Supabase
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(donor_email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Parse amount
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return NextResponse.json(
+        { error: 'Invalid donation amount' },
+        { status: 400 }
+      );
+    }
+
+    // Insert donation with status 'pending'
     const donationData = {
       project_id: project_id || null,
       donor_name: donor_name.trim(),
       donor_email: donor_email.trim(),
       donor_phone: donor_phone?.trim() || '',
-      amount: parseFloat(amount),
+      amount: parsedAmount,
       donation_type: donation_type || 'one-time',
       message: message?.trim() || '',
-      status: 'completed'
+      status: 'pending' // Default to pending
     };
 
-    console.log('Inserting donation data:', donationData);
+    console.log('Inserting donation:', donationData);
 
     const { data: donation, error } = await supabase
       .from('donations')
@@ -49,42 +55,20 @@ export async function POST(request) {
       .single();
 
     if (error) {
-      console.error('Supabase insert error:', error);
+      console.error('Supabase error:', error);
       return NextResponse.json(
         { error: 'Database error: ' + error.message },
         { status: 500 }
       );
     }
 
-    console.log('Donation saved:', donation);
+    console.log('Donation saved with pending status:', donation);
 
-    // Update project raised amount if project_id exists
-    if (project_id && donation) {
-      try {
-        const { data: project, error: projectError } = await supabase
-          .from('projects')
-          .select('raised_amount')
-          .eq('id', parseInt(project_id))
-          .single();
-
-        if (projectError) {
-          console.error('Error fetching project:', projectError);
-        } else if (project) {
-          const newRaisedAmount = (project.raised_amount || 0) + parseFloat(amount);
-          await supabase
-            .from('projects')
-            .update({ raised_amount: newRaisedAmount })
-            .eq('id', parseInt(project_id));
-          console.log('Project raised amount updated to:', newRaisedAmount);
-        }
-      } catch (updateError) {
-        console.error('Error updating project amount:', updateError);
-      }
-    }
+    // DO NOT update project raised amount here - only when admin marks as completed
 
     return NextResponse.json({
       success: true,
-      message: 'Donation successful',
+      message: 'Donation submitted successfully. Awaiting verification.',
       donation: {
         id: donation.id,
         amount: donation.amount,
@@ -102,13 +86,14 @@ export async function POST(request) {
   }
 }
 
-// GET - Fetch recent donations
+// GET - Fetch donations
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit')) || 10;
+    const status = searchParams.get('status');
 
-    const { data: donations, error } = await supabase
+    let query = supabase
       .from('donations')
       .select(`
         *,
@@ -116,9 +101,14 @@ export async function GET(request) {
           title
         )
       `)
-      .eq('status', 'completed')
       .order('created_at', { ascending: false })
       .limit(limit);
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: donations, error } = await query;
 
     if (error) throw error;
 
